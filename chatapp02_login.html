@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ログイン画面</title>
+    <style>
+        #output li {
+            background: #ccc;
+        }
+    </style>
+
+    <!-- ↓追加 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <h1>インスタグラムもどき</h1>
+    <!-- 入力場所を作成しよう -->
+
+
+    <div class="flex justify-center items-center w-full h-screen ">
+        <button id="login" class="w-32 h-16 text-black-200 bg-blue-700 hover:text-white">ログイン</button>
+    </div>
+
+
+
+
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <script>
+            // 日時をいい感じの形式にする関数
+            function convertTimestampToDatetime(timestamp) {
+                const _d = timestamp ? new Date(timestamp * 1000) : new Date();
+                const Y = _d.getFullYear();
+                const m = (_d.getMonth() + 1).toString().padStart(2, '0');
+                const d = _d.getDate().toString().padStart(2, '0');
+                const H = _d.getHours().toString().padStart(2, '0');
+                const i = _d.getMinutes().toString().padStart(2, '0');
+                const s = _d.getSeconds().toString().padStart(2, '0');
+                return `${Y}/${m}/${d} ${H}:${i}:${s}`;
+            }
+        </script> -->
+
+
+    <!-- ------------------------------------------------------ -->
+    <!-- 貼り付け部分↓↓↓※貼り付けることでfirebaseプロジェクトとjsの連携ができる -->
+    <!-- ---------------------------------------------------- -->
+
+
+
+    <!-- 以下にfirebaseのコードを貼り付けよう -->
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        // 🔽 追加
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+
+
+
+
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_PWILT8zljb389tkZ2wuwjpULn-RaXS0",
+            authDomain: "chat-app-test-3b52e.firebaseapp.com",
+            projectId: "chat-app-test-3b52e",
+            storageBucket: "chat-app-test-3b52e.appspot.com",
+            messagingSenderId: "905845900672",
+            appId: "1:905845900672:web:3f543199115534810ced65"
+        };
+
+        // ----------------------------------------------------------------------------------------------
+        // ↑↑↑git add .する前にapikey削除せなほかの人が自由に使えてしまう！！！！！！！！！！！！！！！！！！
+        // -------------------------------------------------------------------------------------------------
+
+        // ↓接続
+        const app = initializeApp(firebaseConfig);
+
+
+
+
+
+
+
+
+        // -----------------------------------------------------------
+        // GoogleAuth（認証用）
+        // ------------------------------------------------
+
+        const provider = new GoogleAuthProvider();
+        provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+        const auth = getAuth();
+
+
+
+
+
+        // ---------------------------------------
+        //ログイン処理↓↓↓
+        // --------------------------------------
+
+        $("#login").on("click", function () {
+            // Google認証完了後の処理
+            // signInWithPopup関数※firebaseが用意している関数
+            signInWithPopup(auth, provider).then((result) => {
+                // ログイン後のページ移動
+                location.href = "chatapp02_home.html";
+                // ↑認証成功時はこのページに飛んでくれ
+
+                // ↓認証失敗時はこの処理してくれ
+            }).catch((error) => {
+                // Handle Errors here
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used
+                const email = error.email;
+                // The AuthCredential type that was used
+                const Credential = GoogleAuthProvider.credentialFromError(error);
+            });
+        });
+
+
+
+
+        // register.addEventListener('click', function (e) {
+        //         var mailAddress = document.getElementById('mailAddress').value;
+        //         var password = document.getElementById('password').value;
+
+        //         firebase.auth().createUserWithEmailAndPassword(mailAddress, password)
+        //             .catch(function (error) {
+        //                 alert('登録できませんでした（' + error.code + error.message + '）');
+        //             });
+        //     });
+
+
+    </script>
+
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+<!-- -------------------------------------------------------- -->
+<!-- ↑ひとまずchatappをコピペ -->
+<!-- ------------------------------------ -->
+
+<!-- 5.2.15.10から作成スタート -->

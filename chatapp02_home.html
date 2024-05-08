@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ホーム</title>
+    <style>
+        #output li {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ホーム</h1>
+    <!-- 入力場所を作成しよう -->
+    <form>
+        <fieldset>
+
+            <!-- 画像１ -->
+
+            <button>
+                <a href="chatapp02_profile.html">プロフィール</a>
+            </button>
+
+
+            <button>
+                <a href="chatapp02_toukou.html">投稿画面へ</a>
+            </button>
+            <!-- ↑ほんとはここ画像 -->
+
+            <button id="out">
+                <a href="chatapp02_login.html">ログアウト</a>
+            </button>
+
+
+
+            <div>
+                名前：<span id="uname"></span><br>
+                <img src="" id="prof">
+            </div>
+
+
+
+        </fieldset>
+    </form>
+
+
+
+
+
+
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <script>
+        // 日時をいい感じの形式にする関数
+        function convertTimestampToDatetime(timestamp) {
+            const _d = timestamp ? new Date(timestamp * 1000) : new Date();
+            const Y = _d.getFullYear();
+            const m = (_d.getMonth() + 1).toString().padStart(2, '0');
+            const d = _d.getDate().toString().padStart(2, '0');
+            const H = _d.getHours().toString().padStart(2, '0');
+            const i = _d.getMinutes().toString().padStart(2, '0');
+            const s = _d.getSeconds().toString().padStart(2, '0');
+            return `${Y}/${m}/${d} ${H}:${i}:${s}`;
+        }
+    </script> -->
+    <!-- 以下にfirebaseのコードを貼り付けよう -->
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        import { getDatabase, ref, push, set, onValue, onChildAdded, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        // ↑import{}fromの{}には基本使うものを書く※使わないものが入っててもエラーにはならん
+
+
+
+        // ↓接続のkey
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_PWILT8zljb389tkZ2wuwjpULn-RaXS0",
+            authDomain: "chat-app-test-3b52e.firebaseapp.com",
+            projectId: "chat-app-test-3b52e",
+            storageBucket: "chat-app-test-3b52e.appspot.com",
+            messagingSenderId: "905845900672",
+            appId: "1:905845900672:web:3f543199115534810ced65"
+        };
+
+        // ----------------------------------------------------------------------------------------------
+        // git add .する前にapikey削除せなほかの人が自由に使えてしまう！！！！！！！！！！！！！！！！！！
+        // -------------------------------------------------------------------------------------------------
+
+        const app = initializeApp(firebaseConfig);
+
+
+        // --------------------------------------------------------
+        // firebase-RealtimeDatabase接続
+        // ------------------------------------------
+
+        // 🔽 追加※今回はRealtimeDatabaseに接続するのでgetDatabase使う
+        const db = getDatabase(app);
+
+
+        // -----------------------------------------------------------
+        // GoogleAuth用
+        // ------------------------------------------------
+
+        const provider = new GoogleAuthProvider();
+        provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+        const auth = getAuth();
+
+
+        // ------------------------------------------------------
+        // ログインしていれば処理される※GoogleAuth用と紐づいている
+        // ---------------------------------------
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in,see docs for a list of available properties
+                // https://firebase.google.com/docs/reference/js/firebase.User
+                const uid = user.uid;
+                // ユーザー情報取得
+                if (user !== null) {
+                    user.providerData.forEach((profile) => {
+                        // ログイン情報取得
+                        $("#uname").text(profile.displayName);
+                        $("#prof").attr("src", profile.photoURL);
+                        // console.log("Sign-in provider:"+profile.providerID);
+                        // console.log("provider-specific UID:"+profile.uid);
+                        // console.log("Email:"+profile.email);
+                        // console.log("Photo URL:" + profile.photoURL);
+
+                    });
+                    $("#status").fadeOut(500);
+                }
+
+
+                // ------------------------------------------------------------------------
+                // データ登録（Click）
+                // ------------------------------
+
+                // ※※※かみ砕けてない
+
+                $("#send").on("click", function () {
+                    const msg = {
+                        title: $("#title").val(),
+                        text: $("#text").val()
+                    }
+
+
+                    const dbRef = ref(db, "users/" + uid + "/memo/" + $("#title").val());
+                    // Real     を使う
+                    set(dbRef, msg);
+                    // DBに値をセットする
+
+                });
+
+
+
+
+                // 最初にデータ取得&onSnapshotでリアルタイムにデータ取得
+                $("#title").on("change", function () {
+                    const dbRef = ref(db, "users/" + uid + "/memo/" + $(this).val());
+                    // RealtimeDB内の"chat"を使う
+                    onValue(dbRef, function (data) {
+                        console.log(data);
+                        const msg = data.val();
+                        // オブジェクトデータを取得し、変数msgに代入
+                        // const key =data.key;データのユニークキー（削除や後進に使用
+                        $("#text").val(msg.text);
+                    });
+                });
+
+                // ※※※かみ砕けてない
+
+
+
+
+
+            } else {
+                _redirect();
+                // User is signed out
+            }
+        });
+
+
+
+        // --------------------------------
+        // ログアウト処理
+        // -------------------------
+
+
+
+
+        // -----------------------------------
+        // ログイン画面へリダイレクト（関数作成）
+        // -----------------------------------------
+
+        function _redirect() {
+            location.href = "chatapp02_login.html";
+        }
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+<!-- -------------------------------------------------------- -->
+<!-- ↑ひとまずchatappをコピペ -->
+<!-- ------------------------------------ -->

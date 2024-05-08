@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- ↓追加 -->
+    <link rel="stylesheet" type="text/css" href="css/sample02.css" />
+    <!-- ↑追加 -->
+
+
+    <title>プロフィール</title>
+    <style>
+        #output li {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>プロフィール</h1>
+    <!-- 入力場所を作成しよう -->
+    <form>
+        <fieldset>
+
+            <!-- 画像たくさん -->
+
+
+
+            <button>
+                <a href="chatapp02_home.html">ホームへ戻る</a>
+            </button>
+
+
+
+
+        </fieldset>
+    </form>
+
+
+
+    <div class="insta">
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+        <div>
+            <a>
+                <img src="img/ゴーゴー.jpg">
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        // 日時をいい感じの形式にする関数
+        function convertTimestampToDatetime(timestamp) {
+            const _d = timestamp ? new Date(timestamp * 1000) : new Date();
+            const Y = _d.getFullYear();
+            const m = (_d.getMonth() + 1).toString().padStart(2, '0');
+            const d = _d.getDate().toString().padStart(2, '0');
+            const H = _d.getHours().toString().padStart(2, '0');
+            const i = _d.getMinutes().toString().padStart(2, '0');
+            const s = _d.getSeconds().toString().padStart(2, '0');
+            return `${Y}/${m}/${d} ${H}:${i}:${s}`;
+        }
+    </script>
+    <!-- 以下にfirebaseのコードを貼り付けよう -->
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+
+
+
+        // 🔽 追加 / `9.2.0`の部分を↑のFirestoreから貼り付けたコードのバージョンに合わせる
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            serverTimestamp,
+            onSnapshot,
+        } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+
+
+
+
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_PWILT8zljb389tkZ2wuwjpULn-RaXS0",
+            authDomain: "chat-app-test-3b52e.firebaseapp.com",
+            projectId: "chat-app-test-3b52e",
+            storageBucket: "chat-app-test-3b52e.appspot.com",
+            messagingSenderId: "905845900672",
+            appId: "1:905845900672:web:3f543199115534810ced65"
+        };
+
+
+        // ----------------------------------------------------------------------------------------------
+        // git add .する前にapikey削除せなほかの人が自由に使えてしまう！！！！！！！！！！！！！！！！！！
+        // -------------------------------------------------------------------------------------------------
+
+
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        // 🔽 追加
+        const db = getFirestore(app);
+
+
+
+        $("#send").on("click", function () {
+            const post = {
+                name: $("#name").val(),
+                text: $("#text").val(),
+                time: serverTimestamp(),
+            };
+
+            console.log(post);
+            addDoc(collection(db, "chat"), post);
+            $("#text").val("");
+        });
+
+
+
+
+
+
+
+        // データ取得処理
+        onSnapshot(collection(db, "chat"), (querySnapshot) => {
+            console.log(querySnapshot.docs);
+
+            // chatapp.html
+            // 前項の`console.log()`下に記述
+            // データをわかりやすい形に変換↓※onSnapshot内に作らな
+            const documents = [];
+            querySnapshot.docs.forEach(function (doc) {
+                const document = {
+                    id: doc.id,
+                    data: doc.data(),
+                };
+                documents.push(document);
+            });
+
+            // ↓きれいなデータ
+            console.log(documents);
+
+
+
+            // ↑ここまでは毎回同じ
+
+
+            // chatapp.html
+            // 前項の`console.log()`下に記述
+
+            const htmlElements = [];
+            documents.forEach(function (document) {
+                htmlElements.push(`
+    <li id="${document.id}">
+      <p>${document.data.name} at ${document.data.time}</p>
+      <p>${document.data.text}</p>
+    </li>
+  `);
+            });
+
+            // $("#output").html(htmlElements);これでhtmlに記述
+
+
+
+        });
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+<!-- -------------------------------------------------------- -->
+<!-- ↑ひとまずchatappをコピペ -->
+<!-- ------------------------------------ -->
